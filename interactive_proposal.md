@@ -1,19 +1,23 @@
 # Proposal for Interactive Visualization Project
 
-Title: Where things are economically going better? Interactive map that shows, at a glance,
-    the current economical status for each big Metropolitan Statistical Area
+Title: Where things are economically going better in the US? Interactive map that shows, at a glance,
+    the current economical status for each big Metropolitan Statistical Area in the United States
 
 Name of author: Miguel Pérez Rodríguez
 
 ## Description of the topic
 
- I want to generate an interactive map of the United
-    States by Metropolitan Statistical Areas (MSA), that includes only the MSA
-    that have population over 500,000. With this interactive map I want to
+ In the context of the heterogeneity of economic situations in cities accross 
+    the United States (difference in incomes, distribution of income, recent economic 
+    growth, generation/destruction of jobs), I want to generate an interactive map
+     by Metropolitan Statistical Areas (MSA), that includes only the MSA
+    that have population over 500,000. 
+    
+With this interactive map I want to
     show, "at a glance", the current economical status for each MSA in terms of population,
     average income, income distribution, people that moved in to that area in the last year,
     change in the labor force, unemployment rate, and the composition of the labor 
-    force by industry.
+    force by industry, among others.
 
 ## Data sources
 
@@ -87,7 +91,7 @@ or more visualizations. These visualizations would be:
 
 ## Mock-up of this interactive proposal
 
-![](/mock-up_proposal.pdf?raw=true "")
+![](/mock-up_proposal.png?raw=true "")
 
 ## Questions
 
