@@ -15,7 +15,7 @@ Name of author: Miguel Pérez Rodríguez
     
 With this interactive map I want to
     show, "at a glance", the current economical status for each MSA in terms of population,
-    average income, income distribution, people that moved in to that area in the last year,
+    average income, income distribution, people that moved into that area in the last year,
     change in the labor force, unemployment rate, and the composition of the labor 
     force by industry, among others.
 
@@ -41,30 +41,30 @@ The main data source that I am going to use is the data available at MSA
 
 Additionally, maybe I am going to use the GeoJSON map available in www.carto.com
     (particularly, in this link: https://common-data.carto.com/tables/cb_2013_us_cbsa_5m/public/map)
-    to show the MSA in the United States map.
+    to show the MSAs in the United States map.
 
 ## Examples of interactive visualization
 
-For my project I am thinking in the approach B, this is, a Dynamic Ensemble with three
+For the project I am thinking in the approach B, this is, a Dynamic Ensemble with three
 or more visualizations. These visualizations would be:
 
-1) Interactive map: A map of the United States that shows the MSA and it deliver a summary
+1) Interactive map: A map of the United States that shows the MSAs and it deliver a summary
     with a tooltip. This map will highlight MSA based on the criteria of population (interactive
-    box to say "I just want to see MSA larger than, for example, 2 million people) and will have
+    box to say "I just want to see MSA larger than, for example, 2 million people") and will have
     scale of colours based on a selected variable (for example, scale of colours related to per 
     capita income, or the total change in labor force). I am thinking that the user will be able to
     "click" in the MSA, and display more information about that MSA below the map (in the form
-    of two more interactive graphs related to that specific MSA). The example of this map would
+    of three more interactive graphs related to that specific MSA). The example of this map would
     be an interactive version of, for example, one of these two graphs:
     * Choropleth version of MSA in the United States: https://common-data.carto.com/tables/cb_2013_us_cbsa_5m/public/map
     * Circle version of MSA in the United States: https://lh3.googleusercontent.com/pw/AM-JKLU3IwDX3SfPr-7_XHFTV-Wz1iOaDg2686kHmKIYEg5PxAZTiA4dZR9HhWpTUAbIzSIwzuxKT_0KE2Anb-a4-u9tYuyJAYgHMMOMrvoWtktqEzI40QmW8xBfrV5DI0Yt9u13yFLNJ1sagDcTnvzc3K7r=w1345-h744-no?authuser=0
 
-2) Variable over time for the MSA: After the "click" in the MSA from the interactive map, I want
+2) Variable over time for the MSA: After the "click" in one MSA from the interactive map, I want
     that a graph displays below with the evolution of economical variables over time for that MSA. 
     The economical variables would be selected by the user, for example, unemployment rate, and it
     would look something like this: https://www.statista.com/statistics/183827/gdp-of-the-chicago-metro-area/.
     This graph would be interactive in the sense that the selected economical variable can
-    be change by the user. The possible economical variables that the user could chose are:
+    be changed by the user. The possible economical variables that the user could chose are:
         (i) Per capita income
         (ii) Unemployment rate
         (iii) Total labor force
@@ -73,7 +73,7 @@ or more visualizations. These visualizations would be:
         (vi) Total people that moved from a different metropolitan area in the last year
         (vii) Percentage of population that moved from a different metropolitan area in the last year
 
-3) Distribution of the income in the MSA: After the "click" in the MSA from the 
+3) Distribution of the income in the MSA: After the "click" in one MSA from the 
     interactive map, I want another graph that displays below, in this case, a bar graph
     that displays the distribution of the income as percentage of households with income
     related to different ranges (percentage of households with income under 25k, between 25k-50k, 
@@ -82,12 +82,13 @@ or more visualizations. These visualizations would be:
     income range that changes to the year specified by the user: 
     https://furmancenter.org/data/images/soc2019-borough-income-distribution-bronx.png
 
-4) Distribution of jobs by industry in the MSA: After the "click" in the MSA from the 
+4) Distribution of jobs by industry in the MSA: After the "click" in one MSA from the 
     interactive map, I want another graph that displays below, in this case, a tree
     map of the jobs by industry in that MSA (for example, percentage of population that
-    works in Construction, Manufacturing, Retail, Transportation, etc). I am still
-    thinking about adding this graph because it seems that general industries doesn't vary that
-    much among MSA. It would be something like this link: https://commons.wikimedia.org/wiki/File:Tree_Map_of_Employment_by_Industries_in_Los_Angeles_County,_Ca_%282015%29.svg
+    works in Construction, Manufacturing, Retail, Transportation, etc) for the 
+    year selected by the user. I am still thinking about adding this graph 
+    because it seems that general industries doesn't vary that much among MSA. 
+    It would be something like this link: https://commons.wikimedia.org/wiki/File:Tree_Map_of_Employment_by_Industries_in_Los_Angeles_County,_Ca_%282015%29.svg
 
 ## Mock-up of this interactive proposal
 
