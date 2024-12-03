@@ -1,0 +1,581 @@
+<!--NOTE1: The D3 part and part of the HTML was based from the "d3.html" file available in the course notes-->
+<!--NOTE2: The CSS part and most of the HTML document was based from the "Reverted" template of Bryant Smith, available in the following link-->
+<!--Link for NOTE2: https://www.html.am/templates/downloads/bryantsmith/reverted/ -->
+
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+      /* style for tooltip as well as the base map container */
+      .tooltip {
+        position: absolute;
+        padding: 8px;
+        background: white;
+        border: 1px solid #333333;
+        border-radius: 4px;
+        pointer-events: none;
+        font-family: sans-serif;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        color: #333333;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+    </style> 
+  </head>
+
+  <body>
+  
+    <div id="page">
+    
+      <div id="header">
+        <h1>A tool to analyze economic heterogeneity of metropolitan areas in the USA</h1>
+          <h2>Page developed by Miguel Pérez Rodríguez</h2>
+          
+      </div>
+
+      <div class="contentTitle">
+        <h1>Motivation</h1>
+      </div>
+
+      <div class="contentText">
+        <p>Here I will put my general motivation to do this work, which is to see economic heterogeneity in the United States. </p>
+        <p>A common apporach is doing this by County, I don't like that approach because its too much information to handle. </p>
+        <p>Another approach is doing this by State, I don't like that approach either because its a level too agregated. </p>
+        <p>For the reasons above, and also because I didn't find an interactive tool to see the data at Metropolitan Area level, I decided to do the analysis using Metropolitan Statistical Areas (MSA). </p>
+        <p>Here I will put some facts about the heterogeneity of GDP per capita in the US. </p>
+        <p>Here I will put some facts about the heterogeneity in growth of the GDP per capita in the US. </p>
+        <p>Here I will put some facts about the heterogeneity in the growth of the population per metropolitan area in the US. </p>
+      </div>
+
+      <div class="contentTitle">
+        <h1>The Map (and Table): Economic Outlook of Metropolitan Areas at a Glance </h1>
+      </div>
+
+      <div class="contentText">
+        Select minimum population (in millions) for Metropolitan Areas to be shown in the map: 
+          <select id="Button_min_population_map"></select> </br>
+        Select attribute to analyze the Metropolitan Areas: 
+          <select id="Button_attribute_map"></select> </br>
+      </div>
+
+      <div class="container">
+        <div id="map"></div>
+      </div>
+
+      <div class="contentText">
+        Put the FIPS code of the Metropolitan Area of your interest here: 
+          <select id="Button_metro_area"></select>
+      </div>
+
+      <div class="container">
+        <div id="table"></div>
+      </div>
+
+      <div class="contentTitle">
+        <h1> Bibliography </h1>
+      </div>
+
+      <div class="contentText">
+        <p>Source 1. </p>
+        <p>Source 2. </p>
+        <p>Source 3. </p>
+        <p>Source 4. </p>
+      </div>
+
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script>
+
+      d3.json("visualization_dataset.json").then(function(data) {
+        whole_dataset = data;
+      });
+
+      const width = 800;
+      const height = 600;
+      const svg_map = d3
+        .select("#map")
+        .append("svg")
+        .attr("viewBox", [0, 0, width, height])
+        .attr("width", width)
+        .attr("height", height);
+
+      const div_table = d3
+        .select("#table")
+        .attr("viewBox", [0, 0, width, height])
+        .attr("width", width)
+        .attr("height", height);
+
+      // auxiliar function to convert dictionaries to arrays, used for map data
+      // NOTE: I get this function from this GeekforGeeks post
+      // Link: https://www.geeksforgeeks.org/convert-dictionary-into-an-array-of-objects-in-javascript/#
+      const dictionaryToArrayOfObjects = (dictionary) => {
+            return Object.keys(dictionary).map(key => ({
+                key: key,
+                value: dictionary[key]
+            }));
+        };
+
+      // auxiliar function to format the numbers
+      // NOTE: I saw how to use Intl.NumberFormat in this MDN link, "Try it" section.
+      // Link: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
+      function formatnumber(number, digits = 3) {
+          return new Intl.NumberFormat('en-US', { maximumSignificantDigits: digits }).format(number);
+        }
+
+      // d3 tooltip pattern: create a placeholder div which will be
+      // hidden at first & revealed/moved as needed
+      const tooltip = d3
+        .select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+      // set up projection centered on the United States
+      const projection = d3
+        .geoMercator()
+        .center([-103.462, 44.582])
+        .scale(500)
+        .translate([width / 2, height / 2]);
+      const path = d3.geoPath().projection(projection);
+      const path2 = d3.geoPath().projection(projection);
+      const path3 = d3.geoPath().projection(projection);
+
+      // Group to be able to do zoom in the map
+      // NOTE: I saw an example code of how to do zoom in d3 v7 in this GitHub Gist post
+      // Link: https://gist.github.com/d3noob/7b7e98331f440139dff50f4a58044677
+      var g = svg_map.append("g");
+
+      // load TopoJSON countries
+      d3.json(
+        "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json",
+      ).then((data) => {
+        // using topojson 3rd party library to convert to GeoJSON which D3 understands
+        const geojson = topojson.feature(data, data.objects.countries);
+        const countries = geojson.features;
+
+        // add countries to map
+        g
+          .selectAll(".countries")
+          .data(countries)
+          .join("path")
+          .attr("d", path)
+          .attr("fill", "#f2f2f2")
+          .attr("stroke", "black")
+          .attr("stroke-width", 1);
+      });
+
+      // Small waits for the map of states to be loaded after the map of countries
+      let i = 0
+      while (i < 100000) {
+        d3.timeout(function() {}, 1);
+        i++;
+      }
+
+      // Groups available for minimum population criteria for map button
+      // NOTE: I saw the structure for this button functionality from this post of 
+      // D3.js Graph Gallery
+      // Link: https://d3-graph-gallery.com/graph/connectedscatter_select.html
+      const population_options =["0.05", "0.1", "0.25", "0.5", "1.0", "1.5", "2.0", "5.0", "10.0"]
+
+      // add the options to the minimum population button
+      d3.select("#Button_min_population_map")
+        .selectAll('pop_options')
+        .data(population_options)
+        .enter()
+        .append('option')
+        .text(function (d) { return d; })
+        .attr("value", function (d) { return d; });
+
+      // Groups available for attribute criteria for map button
+      const attribute_options =[
+        "Per Capita Income (USD Thousands)",
+        "Per Capita Income Change Last Year (%)",
+        "Per Capita Income Change Last 5 Years (%)",
+        "Per Capita Income Change Last 10 Years (%)",
+        "Per Capita Income Change Last 20 Years (%)",
+        "Per Capita Income Change Last 30 Years (%)",
+      ]
+
+      // add the options to the attribute button
+      d3.select("#Button_attribute_map")
+        .selectAll('attr_options')
+        .data(attribute_options)
+        .enter()
+        .append('option')
+        .text(function (d) { return d; })
+        .attr("value", function (d) { return d; });
+
+      // load TopoJSON states
+      d3.json(
+        "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json",
+      ).then((data) => {
+        // using topojson 3rd party library to convert to GeoJSON which D3 understands
+        const geojson = topojson.feature(data, data.objects.states);
+        const states = geojson.features;
+
+        // add states to map
+        g
+          .selectAll(".states")
+          .data(states)
+          .join("path")
+          .attr("d", path2)
+          .attr("fill", "#fcfbfd")
+          .attr("stroke", "gray")
+          .attr("stroke-width", .3);
+      });
+
+      // load TopoJSON metropolitan areas
+      const metropilitan_areas_url = "https://raw.githubusercontent.com/loganpowell/census-geojson/refs/heads/master/GeoJSON/20m/2021/metropolitan-statistical-area!micropolitan-statistical-area.json";
+      d3.json(
+        metropilitan_areas_url,
+      ).then((data) => {
+        d3.json("visualization_dataset.json?aaa").then(function(whole_dataset) {
+          // generate new reduced datasets according to variables to use
+          // NOTE: I saw how to do a reduced json based in a bigger json in the first answer of 
+          // this StackOverflow link
+          // Link: https://stackoverflow.com/questions/34010342/map-and-reduce-json-objects-with-javascript
+          const metro_area_name_map = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.GeoName.replace(" (Metropolitan Statistical Area)", "");
+            return pv;
+          }, {});
+
+          const population_map = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.Population[2023]/10**6;
+            return pv;
+          }, {});
+
+          const per_capita_income_map = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.PerCapitaIncome[2023]/10**3;
+            return pv;
+          }, {});
+
+          const per_capita_income_change_map = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.PerCapitaIncomeChange[2023];
+            return pv;
+          }, {});
+
+          const per_capita_income_change_5_years_map = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = ((1 + cv.PerCapitaIncomeChange5Years["Value"]/100)**5 - 1)*100;
+            return pv;
+          }, {});
+
+          const per_capita_income_change_10_years_map = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = ((1 + cv.PerCapitaIncomeChange10Years["Value"]/100)**10 - 1)*100;
+            return pv;
+          }, {});
+
+          const per_capita_income_change_20_years_map = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = ((1 + cv.PerCapitaIncomeChange20Years["Value"]/100)**20 - 1)*100;
+            return pv;
+          }, {});
+
+          const per_capita_income_change_30_years_map = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = ((1 + cv.PerCapitaIncomeChange30Years["Value"]/100)**30 - 1)*100;
+            return pv;
+          }, {});
+
+          console.log(population_map)
+
+          /*
+          HERE IS THE CODE FOR THE MAP
+          */
+
+          function update_map (defined_min_population, defined_attribute, name_of_attribute) {
+            // define variable for scale and colors
+            const scale_variable = defined_attribute
+            const scale_map = dictionaryToArrayOfObjects(scale_variable);
+
+            // color function used for choropleth
+            const colorScale = d3
+              .scaleSequential()
+              .domain([
+                d3.quantile(scale_map, 0.995, function(d) { return +d.value; }), 
+                d3.quantile(scale_map, 0.01, function(d) { return +d.value; })
+              ]) // Reversed domain so higher numbers are darker
+              .interpolator(d3.interpolateViridis);
+
+            // Get only metro areas that has population over the defined threshold
+            const metropolitan_areas_map = data.features.filter(
+            (d) => population_map[d.properties.GEOID] >= defined_min_population,
+            );
+
+            // erase previous metro areas in the map
+            g.selectAll('.metropolitan_areas').remove();
+            g.selectAll('.metro-area-path').remove();
+            svg_map.selectAll('.legend').remove();
+
+            // add metro areas to the map
+            g
+              .selectAll(".metropolitan_areas")
+              .data(metropolitan_areas_map)
+              .join("path")
+              .attr("class", "metro-area-path")
+              .attr("d", path3)
+              .attr("fill", (d) => {
+                let score = scale_variable[d.properties.GEOID];
+                return score ? colorScale(score) : "#ccc";
+              })
+              .attr("stroke", "blue")
+              .attr("stroke-width", 0.4)
+              // Mouseover effect for having information of the selected metro area with mouse
+              .on("mouseover", function (event, d) {
+                tooltip.transition().duration(200).style("opacity", 0.9);
+                tooltip
+                  .html(
+                    `
+                  <strong>${d.properties.NAME}</strong><br/>
+                  FIPS Code Metropolitan Area: ${d.properties.GEOID}<br/>
+                  Population (millions): ${formatnumber(population_map[d.properties.GEOID])}<br/>
+                  ${name_of_attribute}: ${formatnumber(scale_variable[d.properties.GEOID])}<br/>
+                `
+                  /*
+                  Per Capita Income (USD Thousands): ${formatnumber(per_capita_income_map[d.properties.GEOID])}<br/>
+                  Per Capita Income Change Last Year (%): ${formatnumber(per_capita_income_change_map[d.properties.GEOID])}<br/>
+                  Per Capita Income Change Last 5 Years (%): ${formatnumber(per_capita_income_change_5_years_map[d.properties.GEOID])}<br/>
+                  Per Capita Income Change Last 10 Years (%): ${formatnumber(per_capita_income_change_10_years_map[d.properties.GEOID])}<br/>
+                  Per Capita Income Change Last 20 Years (%): ${formatnumber(per_capita_income_change_20_years_map[d.properties.GEOID])}<br/>
+                  Per Capita Income Change Last 30 Years (%): ${formatnumber(per_capita_income_change_30_years_map[d.properties.GEOID])}<br/>
+                  */
+                ,
+                  )
+                  .style("left", event.pageX + 10 + "px")
+                  .style("top", event.pageY - 28 + "px");
+              })
+              .on("mouseout", function () {
+                tooltip.transition().duration(500).style("opacity", 0);
+              });
+
+
+            // legend for color scale
+            const legendWidth = 200;
+            const legendHeight = 20;
+            const legendScale = d3
+              .scaleLinear()
+              .domain([
+                d3.min(scale_map, function(d) { return +d.value; }), 
+                d3.max(scale_map, function(d) { return +d.value; })])
+              .range([0, legendWidth]);
+
+            const legendAxis = d3
+              .axisBottom(legendScale)
+              .ticks(8)
+              .tickFormat((d) => d);
+
+            const legend = svg_map
+              .append("g")
+              .attr("class", "legend")
+              .attr(
+                "transform",
+                `translate(${width - legendWidth - 20}, ${height - 50})`,
+              );
+
+            const defs = svg_map.append("defs");
+            const gradient = defs
+              .append("linearGradient")
+              .attr("class", "legend")
+              .attr("id", "legend-gradient")
+              .attr("x1", "0%")
+              .attr("x2", "100%")
+              .attr("y1", "0%")
+              .attr("y2", "0%");
+
+            // Add gradient stops
+            const stops = d3.range(
+              d3.min(scale_map, function(d) { return +d.value; }), 
+              d3.max(scale_map, function(d) { return +d.value; })
+            );
+
+            stops.forEach((stop, i) => {
+              gradient
+                .append("stop")
+                .attr("class", "legend")
+                .attr("offset", `${(i / (stops.length - 1)) * 100}%`)
+                .attr("stop-color", colorScale(stop));
+            });
+
+            legend
+              .append("rect")
+              .attr("class", "legend")
+              .attr("width", legendWidth)
+              .attr("height", legendHeight)
+              .style("fill", "url(#legend-gradient)");
+
+            legend
+              .append("g")
+              .attr("class", "legend")
+              .attr("transform", `translate(0, ${legendHeight})`)
+              .call(legendAxis);
+          }
+          
+          // Dictionary of eqquivalence between attribute options and name of the variable
+          const attribute_options_dict = {
+            "Per Capita Income (USD Thousands)" : per_capita_income_map,
+            "Per Capita Income Change Last Year (%)" : per_capita_income_change_map,
+            "Per Capita Income Change Last 5 Years (%)" : per_capita_income_change_5_years_map,
+            "Per Capita Income Change Last 10 Years (%)" : per_capita_income_change_10_years_map,
+            "Per Capita Income Change Last 20 Years (%)": per_capita_income_change_20_years_map,
+            "Per Capita Income Change Last 30 Years (%)" : per_capita_income_change_30_years_map,
+          }
+
+          // auxliar variables for changing parameters of population and attribute
+          let selected_population_now = "0.05";
+          let name_selected_attribute_now = "Per Capita Income (USD Thousands)";
+          let selected_attribute_now = attribute_options_dict[name_selected_attribute_now];
+
+          // initialize map with a predefined minimum population and attribute
+          update_map(selected_population_now, selected_attribute_now, name_selected_attribute_now);
+
+          // list to the slider to change map based on the new minimum population
+          d3.select("#Button_min_population_map").on("change", function(d){
+            selected_population_now = this.value
+            update_map(selected_population_now, selected_attribute_now, name_selected_attribute_now);
+          });
+
+          // list to the slider to change map based on the new attribute
+          d3.select("#Button_attribute_map").on("change", function(d){
+            name_selected_attribute_now = this.value
+            selected_attribute_now = attribute_options_dict[this.value]
+            update_map(selected_population_now, selected_attribute_now, name_selected_attribute_now);
+          });
+
+          /*
+          HERE IS THE CODE FOR THE TABLE
+          */
+
+          // Groups available for fips code for table button
+          const metro_area_options = Object.keys(metro_area_name_map);
+          console.log(metro_area_options)
+
+          // add the options to the minimum population button
+          d3.select("#Button_metro_area")
+            .selectAll('metropolitan_area_options')
+            .data(metro_area_options)
+            .enter()
+            .append('option')
+            .text(function (d) { return d; })
+            .attr("value", function (d) { return d; });
+
+          // generate table, table head and table body
+          // NOTE: I saw how to generate a table in D3 based in this sample code from ObservableHQ
+          // Link: https://observablehq.com/d/fc4765ca312b4784
+          const table = div_table.append('table');
+          const thead = table.append('thead');
+          const	tbody = table.append('tbody');
+
+          // function to create table
+          function update_table(selected_fips_code) {
+            // assign varibale for fips code
+            const fips_code = selected_fips_code
+
+            // define title, parameters, and data of the table
+            const columns_title = ["Parameter", metro_area_name_map[fips_code], "United States Metropolitan Areas"];
+            const columns_parameters = ["Parameter", "Metro Area", "United States"];
+            const table_data = [
+              {
+                "Parameter" : "Population (Millions)", 
+                "Metro Area" : formatnumber(population_map[fips_code]), 
+                "United States" : formatnumber(population_map["00998"])
+              },
+              {
+                "Parameter" : "Per Capita Income (USD Thousands)", 
+                "Metro Area" : formatnumber(per_capita_income_map[fips_code]), 
+                "United States" : formatnumber(per_capita_income_map["00998"])
+              },
+              {
+                "Parameter" : "Per Capita Income Change Last Year (%)", 
+                "Metro Area" : formatnumber(per_capita_income_change_map[fips_code]), 
+                "United States" : formatnumber(per_capita_income_change_map["00998"])
+              },
+              {
+                "Parameter" : "Per Capita Income Change Last 5 Years (%)", 
+                "Metro Area" : formatnumber(per_capita_income_change_5_years_map[fips_code]), 
+                "United States" : formatnumber(per_capita_income_change_5_years_map["00998"])
+              },
+              {
+                "Parameter" : "Per Capita Income Change Last 10 Years (%)", 
+                "Metro Area" : formatnumber(per_capita_income_change_10_years_map[fips_code]), 
+                "United States" : formatnumber(per_capita_income_change_10_years_map["00998"])
+              },
+              {
+                "Parameter" : "Per Capita Income Change Last 20 Years (%)", 
+                "Metro Area" : formatnumber(per_capita_income_change_20_years_map[fips_code]), 
+                "United States" : formatnumber(per_capita_income_change_20_years_map["00998"])
+              },
+              {
+                "Parameter" : "Per Capita Income Change Last 30 Years (%)", 
+                "Metro Area" : formatnumber(per_capita_income_change_30_years_map[fips_code]), 
+                "United States" : formatnumber(per_capita_income_change_30_years_map["00998"])
+              },
+            ]
+
+            // drop previous table
+            thead.selectAll('tr').remove();
+            thead.selectAll('th').remove();
+            tbody.selectAll('tr').remove();
+            thead.selectAll('td').remove();
+
+            // append the header row
+            thead.append('tr')
+              .selectAll('th')
+              .data(columns_title)
+              .enter()
+              .append('th')
+              .style("text-align", "center")
+              .style("padding", "8px")
+              .text(function (d) { return d });
+    
+            // create a row for each object in the data
+            let rows = tbody.selectAll('tr')
+              .data(table_data)
+              .enter()
+              .append('tr');
+
+            // create a cell in each row for each column
+            let cells = rows.selectAll('td')
+              .data(function (row) {
+                return columns_parameters.map(function (column) {
+                  return {column: column, value: row[column]};
+                });
+              })
+              .enter()
+              .append('td')
+                .style("text-align", "center")
+                .style("padding", "2px")
+                .text(function (d) { return d.value; });
+          };
+
+        // initialize the table with a predefined fips code for metropolitan area
+        update_table("16980");
+
+        // list to the slider to change table based on the new fips code
+        d3.select("#Button_metro_area").on("change", function(d){
+          update_table(this.value);
+        })
+        
+        });
+      });
+      
+      // Add zoom for interactivity
+      // NOTE: I saw an example code of how to do zoom in d3 v7 in this GitHub Gist post
+      // Link: https://gist.github.com/d3noob/7b7e98331f440139dff50f4a58044677
+      const zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .on('zoom', function(event) {
+            g.selectAll('path')
+            .attr('transform', event.transform);
+      });
+
+      svg_map.call(zoom);
+  
+    </script>
+  
+  </body>
+
+</html>

@@ -1,0 +1,4 @@
+File: labor_force_unemployment_msa.txt
+Description: Labor Force and Unemployment per Metro Area
+Source: US Bureau of Labor Statistics
+Link: https://www.bls.gov/lau/metrossa.htm
