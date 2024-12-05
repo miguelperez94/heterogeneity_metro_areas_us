@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" charset="utf-8" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="style.css?ag" />
     <style>
       /* style for tooltip as well as the base map container */
       .tooltip {
@@ -33,7 +33,7 @@
     <div id="page">
     
       <div id="header">
-        <h1>A tool to analyze economic heterogeneity of metropolitan areas in the USA</h1>
+        <h1>A tool to analyze economic heterogeneity of metropolitan areas in the United States</h1>
           <h2>Page developed by Miguel Pérez Rodríguez</h2>
           
       </div>
@@ -44,8 +44,8 @@
 
       <div class="contentText">
         <p>Here I will put my general motivation to do this work, which is to see economic heterogeneity in the United States. </p>
-        <p>A common apporach is doing this by County, I don't like that approach because its too much information to handle. </p>
-        <p>Another approach is doing this by State, I don't like that approach either because its a level too agregated. </p>
+        <p>A common apporach is doing this by County, I don't like that approach because its too much information to handle and sometimes counties are very related one to another. </p>
+        <p>Another approach is doing this by State, I don't like that approach either because its a level too agregated, and doesn't highlight that much the zone related to the interaction of their people. </p>
         <p>For the reasons above, and also because I didn't find an interactive tool to see the data at Metropolitan Area level, I decided to do the analysis using Metropolitan Statistical Areas (MSA). </p>
         <p>Here I will put some facts about the heterogeneity of GDP per capita in the US. </p>
         <p>Here I will put some facts about the heterogeneity in growth of the GDP per capita in the US. </p>
@@ -53,7 +53,7 @@
       </div>
 
       <div class="contentTitle">
-        <h1>The Map (and Table): Economic Outlook of Metropolitan Areas at a Glance </h1>
+        <h1>Economic Outlook of Metropolitan Areas in the United States at a Glance </h1>
       </div>
 
       <div class="contentText">
@@ -67,6 +67,10 @@
         <div id="map"></div>
       </div>
 
+      <div class="contentTitle">
+        <h1>Economic Outlook of the selected Metropolitan Area </h1>
+      </div>
+
       <div class="contentText">
         Put the FIPS code of the Metropolitan Area of your interest here: 
           <select id="Button_metro_area"></select>
@@ -75,8 +79,9 @@
       <div class="container">
         <div id="table"></div>
       </div>
+      </br>
 
-      <div id="fakeimageContainer">
+      <div class="fakeimageContainer">
         <img src="graph_example.png" alt="Graph example" width="500" height="auto">
       </div>
 
@@ -159,10 +164,10 @@
       // load TopoJSON countries
       d3.json(
         "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json",
-      ).then((data) => {
+      ).then((data_countries) => {
         // using topojson 3rd party library to convert to GeoJSON which D3 understands
-        const geojson = topojson.feature(data, data.objects.countries);
-        const countries = geojson.features;
+        const geojson_countries = topojson.feature(data_countries, data_countries.objects.countries);
+        const countries = geojson_countries.features;
 
         // add countries to map
         g
@@ -173,14 +178,26 @@
           .attr("fill", "#f2f2f2")
           .attr("stroke", "black")
           .attr("stroke-width", 1);
-      });
 
-      // Small waits for the map of states to be loaded after the map of countries
-      let i = 0
-      while (i < 100000) {
-        d3.timeout(function() {}, 1);
-        i++;
-      }
+        // load TopoJSON states
+        d3.json(
+          "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json",
+        ).then((data_states) => {
+          // using topojson 3rd party library to convert to GeoJSON which D3 understands
+          const geojson_states = topojson.feature(data_states, data_states.objects.states);
+          const states = geojson_states.features;
+
+          // add states to map
+          g
+            .selectAll(".states")
+            .data(states)
+            .join("path")
+            .attr("d", path2)
+            .attr("fill", "#fcfbfd")
+            .attr("stroke", "gray")
+            .attr("stroke-width", .3);
+        });
+      });
 
       // Groups available for minimum population criteria for map button
       // NOTE: I saw the structure for this button functionality from this post of 
@@ -215,25 +232,6 @@
         .append('option')
         .text(function (d) { return d; })
         .attr("value", function (d) { return d; });
-
-      // load TopoJSON states
-      d3.json(
-        "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json",
-      ).then((data) => {
-        // using topojson 3rd party library to convert to GeoJSON which D3 understands
-        const geojson = topojson.feature(data, data.objects.states);
-        const states = geojson.features;
-
-        // add states to map
-        g
-          .selectAll(".states")
-          .data(states)
-          .join("path")
-          .attr("d", path2)
-          .attr("fill", "#fcfbfd")
-          .attr("stroke", "gray")
-          .attr("stroke-width", .3);
-      });
 
       // load TopoJSON metropolitan areas
       const metropilitan_areas_url = "https://raw.githubusercontent.com/loganpowell/census-geojson/refs/heads/master/GeoJSON/20m/2021/metropolitan-statistical-area!micropolitan-statistical-area.json";
@@ -440,6 +438,7 @@
           d3.select("#Button_min_population_map").on("change", function(d){
             selected_population_now = this.value
             update_map(selected_population_now, selected_attribute_now, name_selected_attribute_now);
+            svg_map.call(zoom.transform, d3.zoomTransform(svg_map.node()));
           });
 
           // list to the slider to change map based on the new attribute
@@ -447,6 +446,7 @@
             name_selected_attribute_now = this.value
             selected_attribute_now = attribute_options_dict[this.value]
             update_map(selected_population_now, selected_attribute_now, name_selected_attribute_now);
+            svg_map.call(zoom.transform, d3.zoomTransform(svg_map.node()));
           });
 
           /*
