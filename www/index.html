@@ -57,7 +57,7 @@
       </div>
 
       <div class="contentText">
-        Select minimum population (in millions) for Metropolitan Areas to be shown in the map: 
+        Select minimum population (in millions) for Metropolitan Areas: 
           <select id="Button_min_population_map"></select> </br>
         Select attribute to analyze the Metropolitan Areas: 
           <select id="Button_attribute_map"></select> </br>
@@ -72,18 +72,18 @@
       </div>
 
       <div class="contentText">
-        Put the FIPS code of the Metropolitan Area of your interest here: 
+        Select the FIPS code of the Metropolitan Area of your interest here: 
           <select id="Button_metro_area"></select>
+      </div>
+
+      <div class="container">
+        <div id="bar_chart"></div>
       </div>
 
       <div class="container">
         <div id="table"></div>
       </div>
       </br>
-
-      <div class="fakeimageContainer">
-        <img src="graph_example.png" alt="Graph example" width="500" height="auto">
-      </div>
 
       <div class="contentTitle">
         <h1> Bibliography </h1>
@@ -102,7 +102,7 @@
     <script src="https://unpkg.com/topojson@3"></script>
     <script>
 
-      d3.json("visualization_dataset.json").then(function(data) {
+      d3.json("visualization_dataset.json?a").then(function(data) {
         whole_dataset = data;
       });
 
@@ -120,6 +120,14 @@
         .attr("viewBox", [0, 0, width, height])
         .attr("width", width)
         .attr("height", height);
+
+
+      const bar_graph = d3
+          .select("#bar_chart")
+          .append("svg")
+          .attr("viewBox", [0, 0, width/2, height/3])
+          .attr("width", width)
+          .attr("height", height/2);
 
       // auxiliar function to convert dictionaries to arrays, used for map data
       // NOTE: I get this function from this GeekforGeeks post
@@ -238,7 +246,7 @@
       d3.json(
         metropilitan_areas_url,
       ).then((data) => {
-        d3.json("visualization_dataset.json?aaa").then(function(whole_dataset) {
+        d3.json("visualization_dataset.json?c").then(function(whole_dataset) {
           // generate new reduced datasets according to variables to use
           // NOTE: I saw how to do a reduced json based in a bigger json in the first answer of 
           // this StackOverflow link
@@ -280,6 +288,37 @@
 
           const per_capita_income_change_30_years_map = whole_dataset.reduce(function(pv, cv) {
             pv[cv.GeoFips] = ((1 + cv.PerCapitaIncomeChange30Years["Value"]/100)**30 - 1)*100;
+            return pv;
+          }, {});
+
+          // datasets for percentile data
+          const per_capita_income_percentile = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.PerCapitaIncomePercentile["Value"];
+            return pv;
+          }, {});
+
+          const per_capita_income_change_percentile = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.PerCapitaIncomeChangePercentile["Value"];
+            return pv;
+          }, {});
+
+          const per_capita_income_change_5_years_percentile = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.PerCapitaIncomeChange5YearsPercentile["Value"];
+            return pv;
+          }, {});
+
+          const per_capita_income_change_10_years_percentile = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.PerCapitaIncomeChange10YearsPercentile["Value"];
+            return pv;
+          }, {});
+
+          const per_capita_income_change_20_years_percentile = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.PerCapitaIncomeChange20YearsPercentile["Value"];
+            return pv;
+          }, {});
+
+          const per_capita_income_change_30_years_percentile = whole_dataset.reduce(function(pv, cv) {
+            pv[cv.GeoFips] = cv.PerCapitaIncomeChange30YearsPercentile["Value"];
             return pv;
           }, {});
 
@@ -450,14 +489,14 @@
           });
 
           /*
-          HERE IS THE CODE FOR THE TABLE
+          HERE IS THE CODE FOR THE TABLE AND THE BAR GRAPH
           */
 
           // Groups available for fips code for table button
           const metro_area_options = Object.keys(metro_area_name_map);
           console.log(metro_area_options)
 
-          // add the options to the minimum population button
+          // add options to the metropolitan area button
           d3.select("#Button_metro_area")
             .selectAll('metropolitan_area_options')
             .data(metro_area_options)
@@ -473,10 +512,115 @@
           const thead = table.append('thead');
           const	tbody = table.append('tbody');
 
-          // function to create table
+          // generate percentile Scale for bar graph
+          const percentileScale = d3
+          .scaleLinear()
+          .domain([0, 100])
+          .range([0, 200]);
+
+          // generate attribute names for bar graph
+          let bar_graph_attributes = []
+          bar_graph_attributes.push(
+              "Per Capita Income", 
+              "Per Capita Income Change Last Year",
+              "Per Capita Income Change Last 5 Years",
+              "Per Capita Income Change Last 10 Years",
+              "Per Capita Income Change Last 20 Years",
+              "Per Capita Income Change Last 30 Years"
+            )
+          console.log(bar_graph_attributes)
+          
+          // function to create table and bar graph
           function update_table(selected_fips_code) {
             // assign varibale for fips code
             const fips_code = selected_fips_code
+
+            /*
+            HERE IS THE CODE FOR THE BAR GRAPH
+            */
+
+            let bar_graph_data = []
+            bar_graph_data.push(
+              parseFloat(per_capita_income_percentile[fips_code]), 
+              parseFloat(per_capita_income_change_percentile[fips_code]),
+              parseFloat(per_capita_income_change_5_years_percentile[fips_code]),
+              parseFloat(per_capita_income_change_10_years_percentile[fips_code]),
+              parseFloat(per_capita_income_change_20_years_percentile[fips_code]),
+              parseFloat(per_capita_income_change_30_years_percentile[fips_code])
+            )
+            console.log(bar_graph_data)
+
+            // erase previous title of the graph
+            bar_graph.selectAll(".graph_title").remove();
+
+            // header of the graph
+            // NOTE: I saw how to use length in D3 in this post of MDN
+            // Link: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/length
+            let space_for_header = 40;
+            let metro_area_name_width = metro_area_name_map[fips_code].length
+            console.log(metro_area_name_width)
+            bar_graph
+              .append("text")
+              .attr("y", 20)
+              .attr("x", width/12 - metro_area_name_width)
+              .attr("class", "graph_title")
+              .style("fill", "White")
+              .style("font-size", "10px")
+              .text(`Percentile stats for: ${metro_area_name_map[fips_code]}`);
+
+            // join rectangles
+            bar_graph.selectAll("rect")
+              .data(bar_graph_data)
+              .join("rect")
+              .attr("class", (d, i) => `class_${i}`)
+              .attr("x", width/4)
+              .attr("y", (d, i) => space_for_header + i * 20)
+              .attr("width", (d) => 2*d)
+              .attr("height", 15)
+              .style("fill", "LightSteelBlue")
+              .on("mouseover", onHover)
+              .on("mouseout", offHover);
+
+            // join text of attribute
+            bar_graph.selectAll("text.attribute")
+              .data(bar_graph_attributes)
+              .join("text")
+              .attr("class", (d, i) => `class_${i}`)
+              .attr("x", 2)
+              .attr("y", (d, i) => space_for_header + 10 + i * 20)
+              .style("fill", "White")
+              .style("font-size", "8px")
+              .text((d, i) => d);
+
+            // Add the X axis of the percentile graph
+            const axis = d3.axisBottom(percentileScale).ticks(3);
+
+            bar_graph
+              .append("g")
+              .attr(
+                "transform",
+                `translate(${width/4}, ${space_for_header + bar_graph_data.length * 20})`
+              )
+              .call(axis)
+              .style("font-size", "8px");
+
+            // erase previous text related to specific percentile for each attribute
+            bar_graph.selectAll(".percentile_number").remove();
+            
+            // Add text related to specific percentile for each attribute
+            bar_graph.selectAll("text.percentile")
+              .data(bar_graph_data)
+              .join("text")
+              .attr("x", (d) => width/4 + 2*d + 5)
+              .attr("y", (d, i) => space_for_header + 10 + i * 20)
+              .attr("class", (d, i) => `class_${i} percentile_number`)
+              .style("fill", "White")
+              .style("font-size", "8px")
+              .text((d, i) => formatnumber(d, 2));
+
+            /*
+            HERE IS THE CODE FOR THE TABLE
+            */
 
             // define title, parameters, and data of the table
             const columns_title = ["Parameter", metro_area_name_map[fips_code], "United States Metropolitan Areas"];
@@ -577,6 +721,34 @@
       });
 
       svg_map.call(zoom);
+
+      // Add mouseover and mouseout hover effects
+      // NOTE: I saw how to do mouseover and mouseout effects in the D3 homework of the class
+      function onHover(d, i) {
+        // get the element where the event occurred
+        let selection = d3.select(this);
+        // get the class related to that element
+        let class_of_selection = selection.attr("class");
+        // set the changes in style for the entire class
+        d3.selectAll("rect." + class_of_selection)
+          .style("fill", "MidnightBlue");
+        d3.selectAll("text." + class_of_selection)
+          .style("fill", "DarkKhaki")
+          .style("font-size", "9.5px");
+      };
+
+      function offHover(d, i) {
+        // get the element where the event occurred
+        let selection = d3.select(this);
+        // get the class related to that element
+        let class_of_selection = selection.attr("class");
+        // set the come back to normal style for the entire class
+        d3.selectAll("rect." + class_of_selection)
+          .style("fill", "LightSteelBlue");
+        d3.selectAll("text." + class_of_selection)
+          .style("fill", "white")
+          .style("font-size", "8px");
+      };
   
     </script>
   
