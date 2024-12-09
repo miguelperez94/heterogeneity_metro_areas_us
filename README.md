@@ -22,8 +22,8 @@ like the image provided above in this file.
 <a href="https://apps.bea.gov/itable/?ReqID=70&step=1&_gl=1*1hajvqr*_ga*NDk0MDAwMTYxLjE3MzI5MDY3NzA.*_ga_J4698JNNFT*MTczMzcwMTUzNS42LjEuMTczMzcwMTc0MC41MS4wLjA.">
 U.S. Bureau of Economic Analysis (BEA) - Regional Data</a>: 
 Economic data at the MSA level related to population, personal income per capita, 
-and general and housing price indices.  
-
+and general and housing price indices.
+<br>
 
 <a href="https://www.jsdelivr.com">
 jsDelivr Open Source maps</a>: 
@@ -31,25 +31,25 @@ TopoJson maps related to (i)
 <a href = "https://www.jsdelivr.com/package/npm/world-atlas">countries of the world</a> 
 and (ii) <a href = "https://www.jsdelivr.com/package/npm/us-atlas">
 states in the United States</a>.
-Licensed <a href = "https://github.com/jsdelivr/jsdelivr/blob/master/LICENSE.md">MIT</a>.  
-
+Licensed <a href = "https://github.com/jsdelivr/jsdelivr/blob/master/LICENSE.md">MIT</a>.
+<br>
 
 <a href="https://github.com/loganpowell/census-geojson/tree/master/GeoJSON/20m/2021">
 Logal Powell GitHub</a>: 
-GeoJson map related to Metropolitan Statistical Areas in the United States.  
-
+GeoJson map related to Metropolitan Statistical Areas in the United States.
+<br>
 
 <a href="https://www.census.gov/programs-surveys/metro-micro/about.html">
 United States Census Bureau</a>: 
-Formal definition of Metropolitan Statistical Area.  
-
+Formal definition of Metropolitan Statistical Area.
+<br>
 
 <a href="https://www.bryantsmith.com/template/">
 Bryant Smith CSS Templates - Reverted Template </a>: 
-Part of CSS structure for this webpage.  
-
+Part of CSS structure for this webpage.
+<br>
 
 <a href="https://www.w3schools.com/css/css_navbar_horizontal.asp">
 W3Schools - CSS Navigation Bar Guidelines</a>: 
-Guidelines for CSS code related to Navigation Bars.  
-
+Guidelines for CSS code related to Navigation Bars.
+<br>
