@@ -15,7 +15,39 @@ like the image provided above in this file.
 
 ## Description of the project
 
+This project attempts to analyze economic heterogeneity in the United 
+States at the Metropolitan Statistical Area (MSA) level with two 
+questions that a user could have in mind: (i) "Where are things going better 
+and worse economically in the United States?", and (ii) 
+"How is a particular MSA doing in comparison to the rest of the United States?"
 
+By definition, each MSA has at least one urban core and includes
+adjacent communities having a high degree of economic and social integration.
+In this context, common approaches to do this type of analysis are at the County and 
+State level, the analysis at the MSA level presented in this project is an intermediate 
+level of analysis that is currently scarce and that captures important trends 
+in metropolitan economic activity that (i) can reflect actual economic 
+relationships inside each area and (ii) shows important economic 
+differences across MSA in the country.
+
+To answer each of the questions for the purpose of this project, this project 
+presents economic data for each Metropolitan Statistical Area (MSA) in the 
+United States in two ways: (i) an <strong>interactive map</strong> 
+that shows a general overview of heterogeneity in the United States by different 
+economic variables, and (ii) an <strong>interactive bar graph</strong> 
+that shows the percentile of the selected Metropolitan Area for each economic 
+variable in comparison to the other MSAs in the country.
+
+The economic variables available to analyze are (i) <strong>per capita 
+income</strong>, current levels and growth over time, (ii) 
+<strong>population</strong>, current levels and growth over time, and (iii) 
+<strong>general and housing regional price indices</strong>, current levels.
+
+The "Motivation" section of the webpage presents a couple of conclusions that 
+can be easily derived by the use of the tools presented in the webpage, but
+as an interactive tool, the final conclusions are up to the user, and overall, it is
+easy to see huge differences in almost every economic variable across the different MSAs,
+which reflects part of the economic heterogeneity in the United States.
 
 ## Data Sources
 
