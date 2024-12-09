@@ -43,8 +43,9 @@ income</strong>, current levels and growth over time, (ii)
 <strong>population</strong>, current levels and growth over time, and (iii) 
 <strong>general and housing regional price indices</strong>, current levels.
 
-The "Motivation" section of the webpage presents a couple of conclusions that 
-can be easily derived by the use of the tools presented in the webpage, but
+The "Motivation" section of the webpage presents the general motivation 
+behind the project and a couple of conclusions that can be easily
+derived by the use of the tools presented in the webpage, but
 as an interactive tool, the final conclusions are up to the user, and overall, it is
 easy to see huge differences in almost every economic variable across the different MSAs,
 which reflects part of the economic heterogeneity in the United States.
