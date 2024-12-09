@@ -1,0 +1,15 @@
+File: countries-50m
+Description: map of the countries of the world
+Source: cdn.jsdelivr.net
+Link: https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json
+
+File: states-10m
+Description: map of the states in the United States
+Source: cdn.jsdelivr.net
+Link: https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json
+
+File: metropolitan-statistical-area!micropolitan-statistical-area
+Description: map of the metropolitan and micropolitan statistical areas in the United States
+Source: LogalPowell GitHub
+Link: https://raw.githubusercontent.com/loganpowell/census-geojson/refs/heads/master/GeoJSON/20m/2021/metropolitan-statistical-area!micropolitan-statistical-area.json
+Link2: https://github.com/loganpowell/census-geojson/tree/master/GeoJSON/20m/2021
