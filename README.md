@@ -6,7 +6,7 @@ Author: Miguel Pérez Rodríguez
 
 ## To see the webpage related to this project
 
-You can see the HTML page related to this project in https://miguelperez.netlify.app/.
+You can see the webpage related to this project in this [link](https://heterogeneitymsaunitedstates.netlify.app/).
 
 If by any chance that link doesn't work, you can run the webpage by going to
 the directory "www", then run the command "python -m http.server", and then open 
