@@ -6,9 +6,9 @@ Author: Miguel Pérez Rodríguez
 
 ## To see the webpage related to this project
 
-You can see the webpage related to this project in this [link](https://heterogeneitymsaunitedstates.netlify.app/).
+The webpage for this project is available at this [link](https://heterogeneitymsaunitedstates.netlify.app/).
 
-If by any chance that link doesn't work, you can run the webpage by going to
+If by any chance the link doesn't work, you can run the webpage by going to
 the directory "www", then run the command "python -m http.server", and then open 
 "http://localhost:8000" in your browser. The base webpage should look 
 like the image provided above in this file.
