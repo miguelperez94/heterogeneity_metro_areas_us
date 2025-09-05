@@ -8,7 +8,7 @@ Link: https://www.bryantsmith.com/template/ -->
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" charset="utf-8" />
-    <link rel="stylesheet" type="text/css" href="style.css?ck" />
+    <link rel="stylesheet" type="text/css" href="style.css?b" />
     <!--NOTE: I learned to put the LinkedIn, GitHub and mail logos in these posts of 
     w3Schools, the logos are from Cloudflare
     Link1: https://www.w3schools.com/icons/tryit.asp?filename=tryicons_fa-linkedin-square 
@@ -27,6 +27,7 @@ Link: https://www.bryantsmith.com/template/ -->
         <li><a href="#countryanalysis">General Analysis</a></li>
         <li><a href="#msaanalysis">MSA Level Analysis</a></li>
         <li><a href="#motivation">Motivation</a></li>
+        <li><a href="#conclusions">Conclusions</a></li>
         <li><a href="#sources">Sources</a></li>
         <li class = "contact">
           <!-- Add Mail logo and link-->
@@ -107,7 +108,7 @@ Link: https://www.bryantsmith.com/template/ -->
       <div class="contentText">
         Select minimum population (in millions) for Metropolitan Areas: 
           <select id="Button_min_population_map"></select> <br/>
-        Select attribute to analyze the Metropolitan Areas: 
+        Select attribute to analyze: 
           <select id="Button_attribute_map"></select>
       </div>
 
@@ -129,7 +130,7 @@ Link: https://www.bryantsmith.com/template/ -->
       </div>
 
       <div class="contentText">
-        Select the FIPS code of the Metropolitan Area of your interest here: 
+        Select the Metropolitan Area of your interest: 
           <select id="Button_metro_area"></select> <br/>
       </div>
       <div class="contentText tips">
@@ -143,10 +144,8 @@ Link: https://www.bryantsmith.com/template/ -->
       </div>
 
       <div class="contentText tips">
-        <strong>Tip 1</strong>: Hover over a bar related to a variable to see information about 
+        <strong>Tip</strong>: Hover over a bar related to a variable to see information about 
         that variable for the MSA and the US.<br/>
-        <strong>Tip 2</strong>: If you don't know the FIPS code of the MSA of 
-        your interest, you can search it in the map above.<br/>
         <strong>Note on interpretation</strong>: This graph shows the percentile
         of the selected MSA for each variable in comparison to the rest of the MSAs
         in the United States. For example, if the value related to "Per Capita Income"
@@ -180,25 +179,32 @@ Link: https://www.bryantsmith.com/template/ -->
           Also, MSAs have at least a population of 50,000 or more inhabitants. MSAs are
           defined periodically by the US government. Due to its characteristics, an analysis 
           at the MSA level can capture important trends in metropolitan economic activity
-          that reflect actual economic relationships inside each area. 
+          that reflect economic relationships inside each area. 
         </p>
-        <br/>
-        
+      </div>
+
+      <div id="conclusions" class="contentTitle">
+        <h1>
+          Conclusions
+        </h1>
+      </div>
+      
+      <div class="contentText">
         <p>
           As an interactive tool, the conclusions are up to the user, but overall, it is
-          easy to see huge differences in almost every economic variable across the different MSA
+          direct to see important differences in almost every economic variable across the different MSA
           in the United States. Here are a couple of examples that I hope spark the curiosity
           of the reader:
         </p>
         <ul>
           <li>
             While the average personal income per capita in MSAs in the United States is USD 72k,
-            there are MSAs with personal incomes as high as 145k and as low as 38k, with a median
+            there are MSAs with personal income as high as 145k and as low as 38k, with a median
             across MSAs of 59k. 
           </li>
           <li>
             While the average growth of the personal income per capita in MSAs in the United States 
-            in the last 30 years is 215%, there are MSAs with personal incomes as 
+            in the last 30 years is 215%, there are MSAs with personal income growth as 
             high as 507% and as low as 146%, with a median across MSAs of 206%.
           </li>
           <li>
@@ -685,7 +691,6 @@ Link: https://www.bryantsmith.com/template/ -->
                   .html(
                     `
                   <strong>${d.properties.NAME}</strong><br/>
-                  FIPS Code Metropolitan Area: ${d.properties.GEOID}<br/>
                   Population (millions): ${formatnumber(population_map[d.properties.GEOID])}<br/>
                   ${name_of_attribute}: ${formatnumber(scale_variable[d.properties.GEOID])}<br/>
                 `
@@ -810,7 +815,7 @@ Link: https://www.bryantsmith.com/template/ -->
             .data(metro_area_options)
             .enter()
             .append('option')
-            .text(function (d) { return d; })
+            .text(function (d) { return metro_area_name_map[d]; }) 
             .attr("value", function (d) { return d; });
 
           // generate percentile Scale for bar graph
@@ -987,8 +992,8 @@ Link: https://www.bryantsmith.com/template/ -->
             `
             ,
             )
-            .style("left", event.pageX + 10 + "px")
-            .style("top", event.pageY - 63 + "px");
+            .style("left", event.pageX + 5 + "px")
+            .style("top", event.pageY - 95 + "px");
         };
 
         function offHover(d, i) {
